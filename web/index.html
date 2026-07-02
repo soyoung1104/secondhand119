@@ -1,0 +1,112 @@
+<!DOCTYPE html>
+<html lang="ko">
+
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>헌옷119 - 방문수거 접수</title>
+  <link rel="stylesheet" href="style.css" />
+</head>
+
+<body>
+  <main class="container">
+    <img src="assets/logo.png" alt="헌옷119" class="logo" />
+    <h1>헌옷119</h1>
+    <p class="subtitle">옷 · 가방 · 신발 방문수거</p>
+
+    <div class="button-group">
+      <button id="kakaoBtn" class="btn btn-kakao" type="button">카카오톡 연결하기</button>
+      <button id="applyBtn" class="btn btn-primary" type="button">바로 접수하기</button>
+    </div>
+  </main>
+
+  <section class="info">
+    <div class="info-block">
+      <h2>♻️ 매입 가격</h2>
+      <p>1kg당 <strong>300원</strong>에 매입해드립니다.</p>
+      <p class="info-note">50L 봉지에 담으시면 약 10kg 정도 나갑니다.</p>
+      <p class="info-note">20kg 이하로 접수하시는 경우 1kg당 100원이 적용됩니다.</p>
+    </div>
+
+    <div class="info-block">
+      <h2>🧺 매입 품목</h2>
+      <p>옷 · 신발 · 가방</p>
+      <p class="info-note">기본적으로 재활용이 가능해야 하며, 오염이나 파손이 심한 제품은 매입이 어렵습니다.</p>
+    </div>
+
+    <div class="info-block">
+      <h2>⭐ 이용 방법</h2>
+      <p>전화, 문자, 카카오톡, 바로 접수 중 편하신 방법으로 수거를 요청해 주세요.</p>
+      <p class="info-note">빠른 수거를 위해 문자로 요청하실 때는 아래 양식을 참고해 주세요.</p>
+      <p class="info-example">예) OO동 XX아파트 101동 202호 헌옷수거 요청합니다. 공동현관 비밀번호, 계좌번호</p>
+    </div>
+
+    <div class="info-block">
+      <h2>☎️ 문의 · 운영시간</h2>
+      <p>문의 전화: <strong>010-0000-0000</strong></p>
+      <p class="info-note">운영시간: 평일 오전 10시 30분 ~ 오후 8시 (늦은 시간 문의는 문자로 남겨 주세요)</p>
+      <p class="info-note">기사님 콜이 밀려 있을 수 있으니, 가급적 비대면으로 문 앞에 놔주시면 감사하겠습니다.</p>
+    </div>
+
+    <div class="info-block info-warning">
+      <h2>🚨 매입 불가 품목</h2>
+      <p>책, 종이류, 찢어지거나 곰팡이 핀 의류, 유니폼·단체복·찜질방복, 찢어진 신발류, 금 간 구두,
+        슬리퍼, 장화, 바퀴 달린 신발 및 인라인 스케이트, 고무신, 부츠, 털신, 캐리어 가방, 솜이불,
+        스펀지요, 매트리스, 전기장판, 메모리폼, 베개, 쿠션, 방석, 유리, 카펫, 이불류, 커튼 등
+        기타 쓰레기</p>
+    </div>
+
+    <div class="info-block info-warning">
+      <h2>❗ 페널티 안내</h2>
+      <p>무상 수거 품목 및 매입 불가 품목을 유상 수거 품목과 섞어 놓으신 경우, 적발 시 전체
+        수량을 1kg당 100원에 매입합니다.</p>
+    </div>
+
+    <p class="info-footer">
+      헌옷119는 의류 재활용 전문 수거 업체이며, 모든 물품을 처리할 수 있는 폐기물 처리·환경
+      업체가 아닙니다. 원활한 수거를 위해 고객님들의 관심과 배려 부탁드립니다 🙏
+    </p>
+  </section>
+
+  <!-- 접수 모달 -->
+  <div id="applyModal" class="modal hidden" aria-hidden="true">
+    <div class="modal-content">
+      <button id="closeModal" class="modal-close" type="button" aria-label="닫기">&times;</button>
+      <h2>수거 접수</h2>
+      <form id="applyForm" novalidate>
+        <div class="form-row">
+          <label>
+            이름
+            <input type="text" name="name" required />
+          </label>
+          <label>
+            계좌번호
+            <input type="text" name="accountNumber" placeholder="은행명 000-0000-0000" required />
+          </label>
+        </div>
+        <label>
+          주소
+          <input type="text" name="address" required />
+        </label>
+        <label>
+          공동현관 비밀번호
+          <input type="text" name="entrancePassword" placeholder="예: 1234# (없으면 비워두세요)" />
+        </label>
+        <label>
+          전화번호
+          <input type="tel" name="phone" placeholder="010-0000-0000" required pattern="^01[016789]-?\d{3,4}-?\d{4}$" />
+        </label>
+        <label class="consent">
+          <input type="checkbox" name="consent" required />
+          <span>개인정보 수집·이용에 동의합니다. (<a href="privacy.html" target="_blank">보기</a>)</span>
+        </label>
+        <button id="submitBtn" type="submit" class="btn btn-primary">확인</button>
+      </form>
+      <p id="formStatus" role="status"></p>
+    </div>
+  </div>
+
+  <script src="dist/script.js" defer></script>
+</body>
+
+</html>

@@ -1,0 +1,25 @@
+{
+  "name": "heonot119-card-landing",
+  "private": true,
+  "version": "1.0.0",
+  "description": "헌옷119 명함 QR 접수 랜딩페이지",
+  "scripts": {
+    "typecheck": "npm run typecheck:web && npm run typecheck:apps-script && npm run typecheck:tools",
+    "typecheck:web": "tsc -p web/tsconfig.json --noEmit",
+    "typecheck:apps-script": "tsc -p apps-script/tsconfig.json --noEmit",
+    "typecheck:tools": "tsc -p tools/tsconfig.json --noEmit",
+    "build": "npm run build:web && npm run build:apps-script",
+    "build:web": "tsc -p web/tsconfig.json",
+    "build:apps-script": "tsc -p apps-script/tsconfig.json && node -e \"require('fs').copyFileSync('apps-script/dist/Code.js','apps-script/dist/Code.gs')\"",
+    "qr": "tsc -p tools/tsconfig.json && node tools/dist/generate-qr.js"
+  },
+  "dependencies": {
+    "qrcode": "^1.5.3"
+  },
+  "devDependencies": {
+    "typescript": "^5.4.5",
+    "@types/node": "^14.18.63",
+    "@types/google-apps-script": "^1.0.83",
+    "@types/qrcode": "^1.5.5"
+  }
+}
