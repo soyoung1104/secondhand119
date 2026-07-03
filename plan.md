@@ -502,11 +502,16 @@ generateQr().catch((err: Error) => {
 
 ## 7. 배포 (직접 관리하는 서버 없이 배포하는 방법)
 
-1. **웹페이지 호스팅**: GitHub Pages / Netlify / Vercel 중 택1 (무료 티어로 충분, 서버 설치·관리 불필요 — 파일을 올리면 그걸로 끝)
-   - `npm run build:web` 실행 후 `web/` 폴더 전체(`index.html`, `style.css`, `dist/script.js`, `assets/`, `privacy.html`)를 업로드
-   - `web/src/*.ts`는 컴파일 소스이므로 배포에는 포함하지 않아도 된다
-2. **Apps Script 엔드포인트**: §4.3에서 이미 Google 쪽에 배포됨 (별도 호스팅/서버 준비 불필요)
-3. 배포된 웹페이지 URL을 §6의 `SITE_URL`에 넣고 `npm run qr`로 QR 재생성 → 명함 인쇄
+**웹페이지 호스팅은 GitHub Pages + GitHub Actions로 자동화했다.**
+- 저장소: `github.com/soyoung1104/secondhand119`
+- `.github/workflows/deploy.yml`이 `main` 브랜치에 push될 때마다 `npm ci` →
+  `npm run typecheck` → `npm run build:web` → `web/` 폴더를 GitHub Pages로 배포한다.
+- 저장소 설정에서 `Settings → Pages → Source`가 **GitHub Actions**로 지정되어 있다.
+- **배포 주소: https://soyoung1104.github.io/secondhand119/**
+- 이후 코드를 수정하면 `git push`만 하면 되고, 수동으로 파일을 업로드할 필요가 없다.
+
+Apps Script 엔드포인트는 §4.3에서 이미 Google 쪽에 배포됨 (별도 호스팅/서버 준비 불필요).
+배포된 웹페이지 URL을 §6의 `SITE_URL`에 넣고 `npm run qr`로 QR 재생성 → 명함 인쇄.
 
 ## 8. 테스트 체크리스트
 
@@ -552,6 +557,9 @@ generateQr().catch((err: Error) => {
 - [ ] `apps-script/dist/Code.gs` 내용을 실제 Apps Script 프로젝트에 붙여넣고 웹 앱으로 배포 (§4.3)
 - [ ] 배포된 Apps Script URL을 `web/src/script.ts`의 `SHEET_ENDPOINT`에 반영 후 `npm run build:web` 재실행
 - [ ] `web/assets/logo.png` 실제 로고 이미지 추가
-- [ ] 정적 호스팅(GitHub Pages/Netlify/Vercel)에 `web/` 배포 후 실제 URL 확정 (§7)
-- [ ] 확정된 URL로 `tools/generate-qr.ts`의 `SITE_URL` 수정 후 `npm run qr` 실행 → 명함용 QR 생성
+- [x] GitHub Pages 배포 완료 → **https://soyoung1104.github.io/secondhand119/**
+      (저장소: `github.com/soyoung1104/secondhand119`, `main` 브랜치 push 시
+      `.github/workflows/deploy.yml`이 자동으로 typecheck·빌드·배포)
+- [ ] 확정된 URL(`https://soyoung1104.github.io/secondhand119/`)로
+      `tools/generate-qr.ts`의 `SITE_URL` 수정 후 `npm run qr` 실행 → 명함용 QR 생성
 - [ ] §8 테스트 체크리스트 전체 수행

@@ -14,7 +14,19 @@ body {
   text-align: center;
 }
 
-.logo { width: 96px; margin-bottom: 12px; }
+.logo { width: 220px; max-width: 80%; height: auto; margin-bottom: 12px; }
+
+.sr-only {
+  position: absolute;
+  width: 1px;
+  height: 1px;
+  padding: 0;
+  margin: -1px;
+  overflow: hidden;
+  clip: rect(0, 0, 0, 0);
+  white-space: nowrap;
+  border: 0;
+}
 
 .button-group {
   display: flex;
