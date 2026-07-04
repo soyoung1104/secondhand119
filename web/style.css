@@ -105,6 +105,33 @@ body {
 
 .consent { display: flex; align-items: center; gap: 6px; }
 
+.address-row {
+  display: flex;
+  gap: 8px;
+  margin-top: 4px;
+}
+
+.address-row input {
+  margin-top: 0 !important;
+}
+
+.btn-address {
+  flex-shrink: 0;
+  padding: 0 14px;
+  border: 1px solid #ddd;
+  border-radius: 8px;
+  background: #f5f5f5;
+  font-size: 13px;
+  font-weight: 600;
+  cursor: pointer;
+  white-space: nowrap;
+}
+
+#applyForm input[readonly] {
+  background: #f9f9f9;
+  color: #444;
+}
+
 .info {
   max-width: 420px;
   margin: 0 auto;

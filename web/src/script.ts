@@ -4,11 +4,30 @@ const SHEET_ENDPOINT = "https://script.google.com/macros/s/AKfycbwmY5eXC-wD_kWSD
 
 interface ApplicationPayload {
   name: string;
+  bankName: string;
   accountNumber: string;
   address: string;
+  addressDetail: string;
   entrancePassword: string;
   phone: string;
 }
+
+interface DaumPostcodeData {
+  roadAddress: string;
+  jibunAddress: string;
+}
+
+interface DaumPostcodeOptions {
+  oncomplete: (data: DaumPostcodeData) => void;
+}
+
+interface DaumPostcode {
+  open(): void;
+}
+
+declare const daum: {
+  Postcode: new (options: DaumPostcodeOptions) => DaumPostcode;
+};
 
 function requireElement<T extends HTMLElement>(id: string): T {
   const el = document.getElementById(id);
@@ -25,6 +44,9 @@ const closeModalBtn = requireElement<HTMLButtonElement>("closeModal");
 const form = requireElement<HTMLFormElement>("applyForm");
 const submitBtn = requireElement<HTMLButtonElement>("submitBtn");
 const statusEl = requireElement<HTMLParagraphElement>("formStatus");
+const addressInput = requireElement<HTMLInputElement>("addressInput");
+const addressSearchBtn = requireElement<HTMLButtonElement>("addressSearchBtn");
+const phoneInput = requireElement<HTMLInputElement>("phoneInput");
 
 function openModal(): void {
   modal.classList.remove("hidden");
@@ -44,6 +66,29 @@ kakaoBtn.addEventListener("click", () => {
 applyBtn.addEventListener("click", openModal);
 closeModalBtn.addEventListener("click", closeModal);
 
+addressSearchBtn.addEventListener("click", () => {
+  new daum.Postcode({
+    oncomplete: (data: DaumPostcodeData) => {
+      addressInput.value = data.roadAddress || data.jibunAddress;
+    },
+  }).open();
+});
+
+function formatPhoneNumber(rawValue: string): string {
+  const digits = rawValue.replace(/[^0-9]/g, "").slice(0, 11);
+  if (digits.length < 4) {
+    return digits;
+  }
+  if (digits.length < 8) {
+    return `${digits.slice(0, 3)}-${digits.slice(3)}`;
+  }
+  return `${digits.slice(0, 3)}-${digits.slice(3, 7)}-${digits.slice(7)}`;
+}
+
+phoneInput.addEventListener("input", () => {
+  phoneInput.value = formatPhoneNumber(phoneInput.value);
+});
+
 function getFieldValue(formData: FormData, key: string): string {
   const value = formData.get(key);
   if (typeof value !== "string") {
@@ -55,8 +100,10 @@ function getFieldValue(formData: FormData, key: string): string {
 function buildPayload(formData: FormData): ApplicationPayload {
   return {
     name: getFieldValue(formData, "name"),
+    bankName: getFieldValue(formData, "bankName"),
     accountNumber: getFieldValue(formData, "accountNumber"),
     address: getFieldValue(formData, "address"),
+    addressDetail: getFieldValue(formData, "addressDetail"),
     entrancePassword: getFieldValue(formData, "entrancePassword"),
     phone: getFieldValue(formData, "phone"),
   };

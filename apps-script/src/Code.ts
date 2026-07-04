@@ -2,8 +2,10 @@ const SHEET_NAME = "접수내역";
 
 interface ApplicationPayload {
   name: string;
+  bankName: string;
   accountNumber: string;
   address: string;
+  addressDetail: string;
   entrancePassword: string;
   phone: string;
 }
@@ -15,9 +17,11 @@ interface ApiResponse {
 
 function isValidPayload(data: ApplicationPayload): boolean {
   return (
-    typeof data.name === "string" && data.name.trim().length > 0 &&
+    typeof data.name === "string" && data.name.trim().length > 0 && data.name.length <= 10 &&
+    typeof data.bankName === "string" && data.bankName.trim().length > 0 &&
     typeof data.accountNumber === "string" && data.accountNumber.trim().length > 0 &&
     typeof data.address === "string" && data.address.trim().length > 0 &&
+    typeof data.addressDetail === "string" &&
     typeof data.entrancePassword === "string" &&
     typeof data.phone === "string" && data.phone.trim().length > 0
   );
@@ -45,8 +49,10 @@ function doPost(e: GoogleAppsScript.Events.DoPost): GoogleAppsScript.Content.Tex
     sheet.appendRow([
       new Date(),
       data.name,
+      data.bankName,
       data.accountNumber,
       data.address,
+      data.addressDetail,
       data.entrancePassword,
       data.phone,
     ]);

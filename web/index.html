@@ -74,19 +74,30 @@
       <button id="closeModal" class="modal-close" type="button" aria-label="닫기">&times;</button>
       <h2>수거 접수</h2>
       <form id="applyForm" novalidate>
+        <label>
+          이름 (10자 이내)
+          <input type="text" name="name" maxlength="10" required />
+        </label>
         <div class="form-row">
           <label>
-            이름
-            <input type="text" name="name" required />
+            은행명
+            <input type="text" name="bankName" placeholder="예: 국민은행" required />
           </label>
           <label>
             계좌번호
-            <input type="text" name="accountNumber" placeholder="은행명 000-0000-0000" required />
+            <input type="text" name="accountNumber" placeholder="000-0000-0000" required inputmode="numeric" />
           </label>
         </div>
         <label>
           주소
-          <input type="text" name="address" required />
+          <div class="address-row">
+            <input type="text" name="address" id="addressInput" placeholder="주소 검색 버튼을 눌러주세요" readonly required />
+            <button id="addressSearchBtn" class="btn-address" type="button">주소 검색</button>
+          </div>
+        </label>
+        <label>
+          상세주소
+          <input type="text" name="addressDetail" placeholder="동/호수 등 상세주소" />
         </label>
         <label>
           공동현관 비밀번호
@@ -94,7 +105,8 @@
         </label>
         <label>
           전화번호
-          <input type="tel" name="phone" placeholder="010-0000-0000" required pattern="^01[016789]-?\d{3,4}-?\d{4}$" />
+          <input type="tel" name="phone" id="phoneInput" placeholder="010-0000-0000" required
+                 inputmode="numeric" pattern="^01[016789]-\d{3,4}-\d{4}$" />
         </label>
         <label class="consent">
           <input type="checkbox" name="consent" required />
@@ -106,6 +118,7 @@
     </div>
   </div>
 
+  <script src="//t1.daumcdn.net/mapjsapi/bundle/postcode/prod/postcode.v2.js"></script>
   <script src="dist/script.js" defer></script>
 </body>
 
