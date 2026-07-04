@@ -1,6 +1,6 @@
 const KAKAO_URL = "http://pf.kakao.com/_xcWfxfX";
 // §4.3에서 배포한 Apps Script 엔드포인트 URL로 교체할 것
-const SHEET_ENDPOINT = "https://script.google.com/macros/s/REPLACE_WITH_DEPLOYMENT_ID/exec";
+const SHEET_ENDPOINT = "https://script.google.com/macros/s/AKfycbwmY5eXC-wD_kWSDpbQK2Fsk1OXLm73i18uthY9ygcFnkkcBSou3D8QkKdKoPh5fVoB/exec";
 
 interface ApplicationPayload {
   name: string;
