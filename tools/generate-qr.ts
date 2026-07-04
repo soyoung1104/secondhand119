@@ -2,7 +2,7 @@ import { mkdir, writeFile } from "fs/promises";
 import { dirname, resolve } from "path";
 import QRCode from "qrcode";
 
-const SITE_URL = "https://heonot119.example.com";
+const SITE_URL = "https://soyoung1104.github.io/secondhand119/";
 const OUTPUT_PATH = resolve(__dirname, "../../web/assets/qr.png");
 
 async function generateQr(): Promise<void> {
