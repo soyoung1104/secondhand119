@@ -122,6 +122,7 @@ TypeScript로 작성하고 `@types/google-apps-script` 타입 정의로 typechec
 ```typescript
 // apps-script/src/Code.ts
 const SHEET_NAME = "접수내역";
+const SUMMARY_EMAIL = "89vintage@naver.com";
 
 interface ApplicationPayload {
   name: string;
@@ -223,7 +224,7 @@ function sendDailySummary(): void {
     ? "어제 접수된 건이 없습니다."
     : rows.map(formatRow).join("\n");
 
-  MailApp.sendEmail(Session.getActiveUser().getEmail(), subject, body);
+  MailApp.sendEmail(SUMMARY_EMAIL, subject, body);
 }
 
 function setupDailyTrigger(): void {
@@ -234,7 +235,7 @@ function setupDailyTrigger(): void {
   ScriptApp.newTrigger("sendDailySummary")
     .timeBased()
     .everyDays(1)
-    .atHour(8)
+    .atHour(10)
     .inTimezone("Asia/Seoul")
     .create();
 }
@@ -271,8 +272,8 @@ function setupDailyTrigger(): void {
 2. 편집기 상단의 함수 선택 드롭다운에서 **`setupDailyTrigger`** 선택
 3. **실행(▶)** 버튼 클릭 → 최초 실행 시 "Google에서 확인하지 않은 앱" 경고가 뜨면
    §4.3과 동일하게 **고급 → 이동(안전하지 않음) → 허용**으로 승인 (이메일 발송 권한 포함)
-4. 정상 실행되면 매일 오전 8시(한국시간)에 전날 접수 건을 요약한 메일이
-   `Session.getActiveUser().getEmail()`(스크립트 소유자 계정)로 자동 발송된다
+4. 정상 실행되면 매일 오전 10시(한국시간)에 전날 접수 건을 요약한 메일이
+   `SUMMARY_EMAIL`(`89vintage@naver.com`)로 자동 발송된다
 
 > 트리거는 한 번만 설치하면 되고, `setupDailyTrigger`를 다시 실행해도 기존
 > `sendDailySummary` 트리거를 지우고 새로 만들기 때문에 중복 실행되지 않는다.
@@ -734,6 +735,10 @@ Apps Script 엔드포인트는 §4.3에서 이미 Google 쪽에 배포됨 (별�
 - [x] 폼 필드 스키마 변경에 맞춰 시트 헤더 갱신 + Apps Script를 새 스키마로 재배포 (버전 2)
       완료. 서버 직접 테스트로 은행명 누락 시 거부, 이름 10자 초과 시 거부, 정상 입력 시
       저장 성공까지 전부 확인됨 (시트에 검증용 테스트 행이 여러 개 들어가 있으니 삭제 필요)
-- [ ] Apps Script 편집기에서 최신 `Code.gs` 다시 붙여넣기 → `setupDailyTrigger` 함수를
-      한 번 실행해서 매일 오전 8시 트리거 설치 (§4.4, "Google에서 확인하지 않은 앱" 승인 필요)
+- [x] Apps Script 편집기에 코드 반영 → `setupDailyTrigger` 실행 → 트리거 등록 확인
+      (Claude in Chrome로 직접 진행, OAuth 승인은 사용자가 수행) → `doPost` 웹 앱도
+      버전 4로 재배포하여 최신 코드 유지
+- [x] 요약 메일 수신자를 `89vintage@naver.com`으로, 발송 시각을 오전 10시로 변경
+      (`SUMMARY_EMAIL` 상수 추가, `.atHour(10)`) — Apps Script에 반영 후 `setupDailyTrigger`
+      재실행 필요 (트리거는 재실행 시 자동으로 지우고 새로 만들어짐)
 - [ ] §8 테스트 체크리스트 전체 수행

@@ -1,4 +1,5 @@
 const SHEET_NAME = "접수내역";
+const SUMMARY_EMAIL = "89vintage@naver.com";
 
 interface ApplicationPayload {
   name: string;
@@ -100,7 +101,7 @@ function sendDailySummary(): void {
     ? "어제 접수된 건이 없습니다."
     : rows.map(formatRow).join("\n");
 
-  MailApp.sendEmail(Session.getActiveUser().getEmail(), subject, body);
+  MailApp.sendEmail(SUMMARY_EMAIL, subject, body);
 }
 
 function setupDailyTrigger(): void {
@@ -111,7 +112,7 @@ function setupDailyTrigger(): void {
   ScriptApp.newTrigger("sendDailySummary")
     .timeBased()
     .everyDays(1)
-    .atHour(8)
+    .atHour(10)
     .inTimezone("Asia/Seoul")
     .create();
 }
