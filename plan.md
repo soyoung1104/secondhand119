@@ -186,6 +186,58 @@ function doPost(e: GoogleAppsScript.Events.DoPost): GoogleAppsScript.Content.Tex
     return jsonResponse({ result: "error", message });
   }
 }
+
+function getYesterdayRange(): { start: Date; end: Date } {
+  const now = new Date();
+  const start = new Date(now.getFullYear(), now.getMonth(), now.getDate() - 1);
+  const end = new Date(now.getFullYear(), now.getMonth(), now.getDate());
+  return { start, end };
+}
+
+function formatRow(row: (string | Date)[]): string {
+  const [timestamp, name, bankName, accountNumber, address, addressDetail, entrancePassword, phone] = row;
+  const timeLabel = timestamp instanceof Date
+    ? Utilities.formatDate(timestamp, "Asia/Seoul", "HH:mm")
+    : String(timestamp);
+  const entranceLabel = entrancePassword === "" ? "없음" : String(entrancePassword);
+  return `- [${timeLabel}] ${name} / ${bankName} ${accountNumber} / ${address} ${addressDetail} / `
+    + `공동현관 ${entranceLabel} / ${phone}`;
+}
+
+function sendDailySummary(): void {
+  const sheet = SpreadsheetApp.getActiveSpreadsheet().getSheetByName(SHEET_NAME);
+  if (sheet === null) {
+    return;
+  }
+
+  const { start, end } = getYesterdayRange();
+  const values = sheet.getDataRange().getValues() as (string | Date)[][];
+  const rows = values.slice(1).filter((row) => {
+    const timestamp = row[0];
+    return timestamp instanceof Date && timestamp >= start && timestamp < end;
+  });
+
+  const dateLabel = Utilities.formatDate(start, "Asia/Seoul", "yyyy-MM-dd");
+  const subject = `[헌옷119] ${dateLabel} 접수 요약 (${rows.length}건)`;
+  const body = rows.length === 0
+    ? "어제 접수된 건이 없습니다."
+    : rows.map(formatRow).join("\n");
+
+  MailApp.sendEmail(Session.getActiveUser().getEmail(), subject, body);
+}
+
+function setupDailyTrigger(): void {
+  ScriptApp.getProjectTriggers()
+    .filter((trigger) => trigger.getHandlerFunction() === "sendDailySummary")
+    .forEach((trigger) => ScriptApp.deleteTrigger(trigger));
+
+  ScriptApp.newTrigger("sendDailySummary")
+    .timeBased()
+    .everyDays(1)
+    .atHour(8)
+    .inTimezone("Asia/Seoul")
+    .create();
+}
 ```
 
 `npm run build:apps-script`를 실행하면 `tsc`가 `apps-script/dist/Code.js`를
@@ -205,6 +257,26 @@ function doPost(e: GoogleAppsScript.Events.DoPost): GoogleAppsScript.Content.Tex
 > 주의: 이 URL은 "누구나 이 시트에 행을 추가할 수 있는" 엔드포인트다.
 > `doPost`에서만 동작하도록 하고(`doGet` 미구현), 스팸성 대량 요청을 막기 위해
 > 추후 reCAPTCHA나 rate limit 추가를 고려한다 (§9 참고).
+
+### 4.4 매일 아침 접수 요약 이메일 (KakaoTalk 대신 이메일 선택)
+
+카카오톡 "나에게 보내기"는 개인 계정 OAuth 리프레시 토큰이 약 2개월마다 만료되어
+재인증이 필요한 반면, 이메일은 Apps Script에 내장된 `MailApp`으로 토큰 관리 없이
+안정적으로 보낼 수 있어 이 방식을 선택했다. `getYesterdayRange`/`formatRow`/
+`sendDailySummary`/`setupDailyTrigger` 네 함수를 §4.2 코드에 추가했다 (같은
+`Code.ts` 파일).
+
+**최초 1회만 수동으로 설치**:
+1. `apps-script/dist/Code.gs`의 최신 내용을 Apps Script 편집기에 붙여넣고 저장
+2. 편집기 상단의 함수 선택 드롭다운에서 **`setupDailyTrigger`** 선택
+3. **실행(▶)** 버튼 클릭 → 최초 실행 시 "Google에서 확인하지 않은 앱" 경고가 뜨면
+   §4.3과 동일하게 **고급 → 이동(안전하지 않음) → 허용**으로 승인 (이메일 발송 권한 포함)
+4. 정상 실행되면 매일 오전 8시(한국시간)에 전날 접수 건을 요약한 메일이
+   `Session.getActiveUser().getEmail()`(스크립트 소유자 계정)로 자동 발송된다
+
+> 트리거는 한 번만 설치하면 되고, `setupDailyTrigger`를 다시 실행해도 기존
+> `sendDailySummary` 트리거를 지우고 새로 만들기 때문에 중복 실행되지 않는다.
+> 트리거 목록은 편집기 좌측 **트리거(시계 아이콘)** 메뉴에서 확인·삭제할 수 있다.
 
 ## 5. 프론트엔드 구현
 
@@ -642,6 +714,9 @@ Apps Script 엔드포인트는 §4.3에서 이미 Google 쪽에 배포됨 (별�
       우편번호 API로 주소 검색 + 상세주소 필드 추가, 전화번호 입력 시 자동 하이픈 포맷팅.
       `ApplicationPayload`/Apps Script/`privacy.html` 전부 동기화, typecheck·빌드·프리뷰
       (폼 제출 payload 직접 검증) 통과 완료
+- [x] 매일 아침 접수 요약 이메일 기능 구현 (§4.4): `sendDailySummary`/`setupDailyTrigger`
+      등 4개 함수 추가, typecheck·빌드 통과. 카카오톡 "나에게 보내기"는 리프레시 토큰이
+      주기적으로 만료되는 문제가 있어 이메일(`MailApp`, 토큰 관리 불필요)로 결정
 
 ### 수동 설정 (사용자 계정/실물 자산이 필요해 코드로 대신할 수 없음)
 - [x] Google Sheets `헌옷119_접수내역` 생성 + `접수내역` 탭 + 헤더 행 (§4.1)
@@ -659,4 +734,6 @@ Apps Script 엔드포인트는 §4.3에서 이미 Google 쪽에 배포됨 (별�
 - [x] 폼 필드 스키마 변경에 맞춰 시트 헤더 갱신 + Apps Script를 새 스키마로 재배포 (버전 2)
       완료. 서버 직접 테스트로 은행명 누락 시 거부, 이름 10자 초과 시 거부, 정상 입력 시
       저장 성공까지 전부 확인됨 (시트에 검증용 테스트 행이 여러 개 들어가 있으니 삭제 필요)
+- [ ] Apps Script 편집기에서 최신 `Code.gs` 다시 붙여넣기 → `setupDailyTrigger` 함수를
+      한 번 실행해서 매일 오전 8시 트리거 설치 (§4.4, "Google에서 확인하지 않은 앱" 승인 필요)
 - [ ] §8 테스트 체크리스트 전체 수행

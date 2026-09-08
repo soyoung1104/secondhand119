@@ -63,3 +63,55 @@ function doPost(e: GoogleAppsScript.Events.DoPost): GoogleAppsScript.Content.Tex
     return jsonResponse({ result: "error", message });
   }
 }
+
+function getYesterdayRange(): { start: Date; end: Date } {
+  const now = new Date();
+  const start = new Date(now.getFullYear(), now.getMonth(), now.getDate() - 1);
+  const end = new Date(now.getFullYear(), now.getMonth(), now.getDate());
+  return { start, end };
+}
+
+function formatRow(row: (string | Date)[]): string {
+  const [timestamp, name, bankName, accountNumber, address, addressDetail, entrancePassword, phone] = row;
+  const timeLabel = timestamp instanceof Date
+    ? Utilities.formatDate(timestamp, "Asia/Seoul", "HH:mm")
+    : String(timestamp);
+  const entranceLabel = entrancePassword === "" ? "없음" : String(entrancePassword);
+  return `- [${timeLabel}] ${name} / ${bankName} ${accountNumber} / ${address} ${addressDetail} / `
+    + `공동현관 ${entranceLabel} / ${phone}`;
+}
+
+function sendDailySummary(): void {
+  const sheet = SpreadsheetApp.getActiveSpreadsheet().getSheetByName(SHEET_NAME);
+  if (sheet === null) {
+    return;
+  }
+
+  const { start, end } = getYesterdayRange();
+  const values = sheet.getDataRange().getValues() as (string | Date)[][];
+  const rows = values.slice(1).filter((row) => {
+    const timestamp = row[0];
+    return timestamp instanceof Date && timestamp >= start && timestamp < end;
+  });
+
+  const dateLabel = Utilities.formatDate(start, "Asia/Seoul", "yyyy-MM-dd");
+  const subject = `[헌옷119] ${dateLabel} 접수 요약 (${rows.length}건)`;
+  const body = rows.length === 0
+    ? "어제 접수된 건이 없습니다."
+    : rows.map(formatRow).join("\n");
+
+  MailApp.sendEmail(Session.getActiveUser().getEmail(), subject, body);
+}
+
+function setupDailyTrigger(): void {
+  ScriptApp.getProjectTriggers()
+    .filter((trigger) => trigger.getHandlerFunction() === "sendDailySummary")
+    .forEach((trigger) => ScriptApp.deleteTrigger(trigger));
+
+  ScriptApp.newTrigger("sendDailySummary")
+    .timeBased()
+    .everyDays(1)
+    .atHour(8)
+    .inTimezone("Asia/Seoul")
+    .create();
+}
